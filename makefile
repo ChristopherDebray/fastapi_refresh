@@ -20,3 +20,24 @@ ifdef NAME
 else
 	@printf "❌ ${RED}You must have a NAME for your migration${NOCOLOR} \n"
 endif
+
+## Migration commands
+run-migration-upgrade:
+	@printf "🚀 $(GREEN)Applying all pending migrations${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "alembic upgrade head"
+
+run-migration-upgrade-one:
+	@printf "🚀 $(GREEN)Applying next migration${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "alembic upgrade +1"
+
+run-migration-downgrade:
+	@printf "⬇️  $(ORANGE)Rolling back one migration${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "alembic downgrade -1"
+
+run-migration-history:
+	@printf "📜 $(CYAN)Migration history${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "alembic history"
+
+run-migration-current:
+	@printf "📍 $(CYAN)Current migration${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "alembic current"
