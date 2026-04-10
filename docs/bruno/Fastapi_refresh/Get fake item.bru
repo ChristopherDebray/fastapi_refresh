@@ -1,0 +1,20 @@
+meta {
+  name: Get fake item
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{BASE_URL}}/items/2?q=test
+  body: none
+  auth: inherit
+}
+
+params:query {
+  q: test
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
