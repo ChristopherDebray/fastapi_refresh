@@ -1,17 +1,12 @@
 from pydantic import BaseModel, ConfigDict
 
-class UserResponse(BaseModel):
-    id: int
+class UserCreateDto(BaseModel):
     email: str
     first_name: str
     last_name: str
 
-class UserCreate(BaseModel):
-    email: str
-    first_name: str
-    last_name: str
-
-class UserUpdate(BaseModel):
+class UserUpdateDto(BaseModel):
+    id: int | None = None
     email: str | None = None
     first_name: str | None = None
     last_name: str | None = None
