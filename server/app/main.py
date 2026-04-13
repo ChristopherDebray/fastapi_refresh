@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.routes._system import router as system_router
-from app.routes.users import router as user_router
+from app.module.user.presentation.routes import router as user_router
 
 app = FastAPI(
     title="Fastapi refresh",

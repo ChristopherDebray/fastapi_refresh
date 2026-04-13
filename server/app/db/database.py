@@ -10,6 +10,8 @@ SessionLocal = sessionmaker(
     bind=engine,
     autoflush=False,
     autocommit=False,
+    # Without this the typing is set to any
+    class_=Session,
 )
 
 class Base(DeclarativeBase):
