@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from app.routes._system import router as system_router
+from app.routes.users import router as user_router
 
 app = FastAPI(
     title="Fastapi refresh",
 )
 
 app.include_router(system_router)
+app.include_router(user_router)
 
 @app.get("/")
 def read_root():
