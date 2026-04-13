@@ -6,4 +6,12 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
 
-    model_config = ConfigDict(from_attributes=True)
+class UserCreate(BaseModel):
+    email: str
+    first_name: str
+    last_name: str
+
+class UserUpdate(BaseModel):
+    email: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
