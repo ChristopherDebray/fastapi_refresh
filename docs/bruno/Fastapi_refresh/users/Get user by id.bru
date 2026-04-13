@@ -1,23 +1,17 @@
 meta {
-  name: Update user
+  name: Get user by id
   type: http
-  seq: 3
+  seq: 5
 }
 
-patch {
+get {
   url: {{BASE_URL}}/api/users/:id
-  body: json
+  body: none
   auth: inherit
 }
 
 params:path {
-  id: 2
-}
-
-body:json {
-  {
-    "first_name": "Chris"
-  }
+  id: 1
 }
 
 settings {
