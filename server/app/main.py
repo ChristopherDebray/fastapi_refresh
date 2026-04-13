@@ -1,10 +1,12 @@
-from fastapi import FastAPI
+from app.core.middleware.response_wrapper import ResponseWrapperMiddleware
 from app.routes._system import router as system_router
 from app.module.user.presentation.routes import router as user_router
 
 app = FastAPI(
     title="Fastapi refresh",
 )
+
+app.add_middleware(ResponseWrapperMiddleware)
 
 app.include_router(system_router)
 app.include_router(user_router)
