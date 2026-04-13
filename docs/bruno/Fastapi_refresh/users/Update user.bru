@@ -1,0 +1,26 @@
+meta {
+  name: Update user
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{BASE_URL}}/api/users/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 1
+}
+
+body:json {
+  {
+    "first_name": "Chris"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
