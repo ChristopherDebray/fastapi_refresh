@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from app.module.user.domain.enums import UserRole
 
 
 class UserResponseDto(BaseModel):
@@ -8,3 +9,4 @@ class UserResponseDto(BaseModel):
     email: str
     first_name: str
     last_name: str
+    role: UserRole

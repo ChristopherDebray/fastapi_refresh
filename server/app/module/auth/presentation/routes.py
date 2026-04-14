@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, Response, status
 
+from app.core.config import settings
+from app.core.routing import PublicAPIRoute
 from app.module.auth.application.use_cases.login_use_case import LoginUseCase
 from app.module.auth.application.use_cases.logout_use_case import LogoutUseCase
 from app.module.auth.infrastructure.dtos.inputs import LoginDto
@@ -7,8 +9,9 @@ from app.module.auth.presentation.dependancies import get_login_use_case, get_lo
 from app.module.user.infrastructure.dtos.outputs import UserResponseDto
 
 COOKIE_NAME = "access_token"
+IS_PRODUCTION = settings.ENVIRONMENT == "production"
 
-router = APIRouter(prefix="/api/auth", tags=["auth"])
+router = APIRouter(prefix="/api/auth", tags=["auth"], route_class=PublicAPIRoute)
 
 
 @router.post("/login", response_model=UserResponseDto, status_code=status.HTTP_200_OK)
@@ -22,8 +25,9 @@ def login(
         key=COOKIE_NAME,
         value=result.access_token,
         httponly=True,
-        samesite="strict",
-        secure=False,
+        secure=IS_PRODUCTION,
+        samesite="strict" if IS_PRODUCTION else "lax",
+        max_age=settings.JWT_EXPIRE_MINUTES * 60,
     )
     return result.user
 

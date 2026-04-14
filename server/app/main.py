@@ -3,6 +3,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.exceptions.unique_constraint_exceptions import UniqueConstraintException
+from app.core.middleware.auth_middleware import AuthMiddleware
 from app.core.middleware.exception_handler import generic_exception_handler, http_exception_handler, conflict_exception_handler, validation_exception_handler
 from app.core.middleware.response_wrapper import ResponseWrapperMiddleware
 from app.routes._system import router as system_router
@@ -25,6 +26,7 @@ app.add_middleware(
 )
 
 app.add_middleware(ResponseWrapperMiddleware)
+app.add_middleware(AuthMiddleware)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(UniqueConstraintException, conflict_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)

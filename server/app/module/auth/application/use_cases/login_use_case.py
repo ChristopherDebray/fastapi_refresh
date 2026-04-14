@@ -19,13 +19,14 @@ class LoginUseCase:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials",
             )
-        token = JwtService.create_access_token(user.id)
+        token = JwtService.create_access_token(user.id, user.email, user.role)
         return AuthLoginResponseDto(
             user=UserResponseDto(
                 id=user.id,
                 email=user.email,
                 first_name=user.first_name,
                 last_name=user.last_name,
+                role=user.role,
             ),
             access_token=token,
         )

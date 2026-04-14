@@ -22,4 +22,5 @@ class AuthSqlAlchemyRepository(AuthReadPort):
             first_name=model.first_name,
             last_name=model.last_name,
             password=model.password,
+            role=model.role,
         )

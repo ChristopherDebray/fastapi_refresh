@@ -26,8 +26,13 @@ class ResponseWrapperMiddleware(BaseHTTPMiddleware):
             "data": json.loads(body),
         }
 
-        return Response(
+        new_response = Response(
             content=json.dumps(wrapped),
             status_code=response.status_code,
             media_type="application/json",
         )
+        # We copy the headers of the initial response to our wrap result
+        for key, value in response.headers.items():
+            if key.lower() not in ("content-type", "content-length"):
+                new_response.headers.append(key, value)
+        return new_response
