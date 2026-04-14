@@ -25,8 +25,8 @@ def upgrade() -> None:
     # Crée les types enum PostgreSQL d'abord
     userrole = sa.Enum('SUPERADMIN', 'ADMIN', 'SUPERVISOR', 'DRIVER', 'OPERATOR', name='userrole')
     userstatus = sa.Enum('ACTIVE', 'INACTIVE', name='userstatus')
-    userrole.create(op.get_bind())
-    userstatus.create(op.get_bind())
+    userrole.create(op.get_bind(), checkfirst=True)
+    userstatus.create(op.get_bind(), checkfirst=True)
 
     op.add_column('fpi_users', sa.Column('password', sa.String(length=255), nullable=False))
     op.add_column('fpi_users', sa.Column('role', sa.Enum('SUPERADMIN', 'ADMIN', 'SUPERVISOR', 'DRIVER', 'OPERATOR', name='userrole'), server_default='OPERATOR', nullable=False))
@@ -40,4 +40,7 @@ def downgrade() -> None:
     op.drop_column('fpi_users', 'status')
     op.drop_column('fpi_users', 'role')
     op.drop_column('fpi_users', 'password')
+
+    sa.Enum(name='userrole').drop(op.get_bind(), checkfirst=True)
+    sa.Enum(name='userstatus').drop(op.get_bind(), checkfirst=True)
     # ### end Alembic commands ###
