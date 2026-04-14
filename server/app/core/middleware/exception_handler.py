@@ -1,7 +1,7 @@
 import logging
 from fastapi import Request
 from fastapi.responses import JSONResponse
-from fastapi.exceptions import HTTPException
+from fastapi.exceptions import HTTPException, RequestValidationError
 from starlette import status
 
 from app.core.exceptions.unique_constraint_exceptions import UniqueConstraintException
@@ -36,5 +36,20 @@ async def conflict_exception_handler(request: Request, exc: UniqueConstraintExce
             "isSuccess": False,
             "path": request.url.path,
             "error": str(exc),
+        }
+    )
+
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    errors = [
+        f"{' -> '.join(str(l) for l in err['loc'] if l != 'body')}: {err['msg']}"
+        for err in exc.errors()
+    ]
+    logger.warning(f"Validation error on {request.url.path}: {errors}")
+    return JSONResponse(
+        status_code=422,
+        content={
+            "isSuccess": False,
+            "path": request.url.path,
+            "error": errors,
         }
     )
