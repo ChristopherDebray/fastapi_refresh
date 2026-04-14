@@ -12,6 +12,9 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 uvicorn==0.44.0
 
+# Validations
+pydantic[email]
+
 # ORM and database connection
 sqlalchemy
 alembic
@@ -19,3 +22,9 @@ psycopg2-binary
 
 # Environment Variables
 python-dotenv>=1.0.0
+
+# Password hashing
+bcrypt
+
+# JWT
+python-jose[cryptography]

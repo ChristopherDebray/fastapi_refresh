@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, status
 
+from app.core.security.auth_dependencies import require_roles
 from app.module.user.application.use_cases.delete_user_use_case import DeleteUserUseCase
 from app.module.user.application.use_cases.get_user_use_case import GetUserUseCase
 from app.module.user.application.use_cases.get_users_use_case import GetUsersUseCase
 from app.module.user.application.use_cases.update_user_use_case import UpdateUserUseCase
+from app.module.user.domain.enums import UserRole
 from app.module.user.infrastructure.dtos.outputs import UserResponseDto
 from app.module.user.infrastructure.dtos.inputs import UserCreateDto, UserUpdateDto
 from app.module.user.application.use_cases.create_user_use_case import CreateUserUseCase
@@ -19,11 +21,20 @@ def get_users(use_case: GetUsersUseCase = Depends(get_get_users_use_case)) -> li
 def get_user(user_id: int, use_case: GetUserUseCase = Depends(get_get_user_use_case)) -> UserResponseDto:
     return use_case.execute(user_id)
 
-@router.post("", response_model=UserResponseDto, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=UserResponseDto,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.SUPERVISOR))],
+)
 def create_user(payload: UserCreateDto, use_case: CreateUserUseCase = Depends(get_create_user_use_case)) -> UserResponseDto:
     return use_case.execute(payload)
 
-@router.patch("/{user_id}", status_code=status.HTTP_200_OK)
+@router.patch(
+    "/{user_id}",
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.SUPERVISOR))],
+)
 def update_user(
     user_id: int,
     payload: UserUpdateDto,
@@ -31,6 +42,10 @@ def update_user(
 ) -> UserResponseDto:
     return use_case.execute(user_id, payload)
 
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.SUPERVISOR))],
+)
 def delete_user(user_id: int, use_case: DeleteUserUseCase = Depends(get_delete_user_use_case)) -> None:
     return use_case.execute(user_id)
