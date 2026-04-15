@@ -51,3 +51,13 @@ run-seeds:
 run-db-refresh:
 	@printf "🔄 $(RED)Full refresh : migrations + seeds${NOCOLOR} \n"
 	${DOCKER_SERVER_CLI} -c "alembic downgrade base && alembic upgrade head && python seeds/run_seeds.py"
+
+## TESTS
+run-test-unit:
+ifdef FILE
+	@printf "📍 $(CYAN)Run unit test for ${FILE} ${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "pytest ${FILE} -v"
+else
+	@printf "📍 $(CYAN)Run all unit test${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "pytest tests/unit -v"
+endif

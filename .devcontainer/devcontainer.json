@@ -3,8 +3,22 @@
   "dockerComposeFile": "../docker-compose.yml",
   "service": "server",
   "workspaceFolder": "/app",
-  "extensions": [
-    "ms-python.python",
-    "ms-python.pylance"
-  ]
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "ms-python.isort",
+        "chunsen.bracket-select",
+        "usernamehw.errorlens"
+      ],
+      "settings": {
+        "python.analysis.autoImportCompletions": true,
+        "editor.quickSuggestions": {
+          "other": true
+        }
+      }
+    }
+  }
 }
