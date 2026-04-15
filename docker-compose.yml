@@ -9,6 +9,7 @@ services:
     env_file: .env
     volumes:
       - ./server:/app
+      - python_packages:/usr/local/lib/python3.14/site-packages
     depends_on:
       postgres:
         condition: service_healthy
@@ -38,7 +39,14 @@ services:
         condition: service_healthy
     volumes:
       - pgadmin-data:/var/lib/pgadmin
+  
+  adminer:
+    container_name: fastapi-refresh-adminer
+    image: adminer:5.0.4
+    ports:
+      - 127.0.0.1:8081:8080
 
 volumes:
   postgres_data:
   pgadmin-data:
+  python_packages:

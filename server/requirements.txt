@@ -28,3 +28,7 @@ bcrypt
 
 # JWT
 python-jose[cryptography]
+
+# Tests
+pytest
+pytest-asyncio
