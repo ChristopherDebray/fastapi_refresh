@@ -18,7 +18,7 @@
 
 ## Enums
 - Définis dans domain/enums.py
-- Toujours str + enum.Enum pour compatibilité Pydantic/SQLAlchemy
+- Toujours enum.StrEnum (Python 3.11+) pour compatibilité Pydantic/SQLAlchemy
 - server_default ET default sur les colonnes enum dans EntityModel
 
 ## Migrations Alembic
@@ -26,6 +26,13 @@
 - Toujours ajouter server_default pour les colonnes NOT NULL ajoutées sur table existante
 - Toujours ajouter les enums requis en bdd si ils ne sont pas auto généré dans la migration
 - Vérifier le fichier généré avant upgrade
+
+## Tests
+- Fichiers : tests/unit/<chemin relatif depuis app/>/test_<nom_fichier>.py
+- Nommage méthode : test_<méthode>_<scénario>_<résultat_attendu>
+- Fixtures partagées entre fichiers → conftest.py dans le dossier parent commun
+- Fixtures propres → dans le fichier test directement
+- Pas de spec= sur MagicMock (Protocol implicite)
 
 ## Middleware (ordre dans main.py)
 1. CORSMiddleware
