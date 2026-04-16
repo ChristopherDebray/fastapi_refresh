@@ -10,6 +10,12 @@ CYAN=\033[0;36m
 DOCKER_SERVER_CLI=docker compose exec -it server bash
 
 ## CONFIG
+install-hooks:
+	@printf "🔗 $(CYAN)Installing git hooks${NOCOLOR} \n"
+	cp .githooks/pre-commit .git/hooks/pre-commit
+	chmod +x .git/hooks/pre-commit
+	@printf "✅ $(GREEN)Hook installed in .git/hooks/pre-commit${NOCOLOR} \n"
+
 run-pip-install:
 	@printf "🔍 $(CYAN)Install project requirements : ${NAME} ${NOCOLOR} \n"
 	${DOCKER_SERVER_CLI} -c "pip install -r requirements.txt"
@@ -61,3 +67,32 @@ else
 	@printf "📍 $(CYAN)Run all unit test${NOCOLOR} \n"
 	${DOCKER_SERVER_CLI} -c "pytest tests/unit -v"
 endif
+
+## CODE QUALITY
+
+run-qc-lint:
+	@printf "🔍 $(CYAN)Run ruff lint${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "ruff check app/"
+
+run-qc-check:
+	@printf "🎨 $(CYAN)Run ruff format check${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "ruff format --check app/"
+
+run-qc-lint-fix:
+	@printf "🔧 $(CYAN)Run ruff lint fix${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "ruff check app/ --fix"
+
+#### First run check fix (run-qc-lint-fix) since it might alter the structure
+#### Then you can run the formating
+run-qc-format-fix:
+	@printf "🎨 $(CYAN)Run ruff format fix${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "ruff format app/"
+
+run-qc-all-fix:
+	@printf "🚀 $(CYAN)Run all auto-fix (ruff + format)${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "ruff check app/ --fix && ruff format app/"
+
+#### Ruff doesn't have an auto fix
+run-qc-ruff:
+	@printf "🔍 $(CYAN)Run ruff mypy${NOCOLOR} \n"
+	${DOCKER_SERVER_CLI} -c "mypy app/"

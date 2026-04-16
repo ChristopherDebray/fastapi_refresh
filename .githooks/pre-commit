@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+CONTAINER="fastapi-refresh-server"
+
+if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
+    echo "⚠️  Container '${CONTAINER}' not running — skipping code quality checks."
+    exit 0
+fi
+
+echo "🔍 ruff lint..."
+docker compose exec -T server ruff check app/
+
+echo "🎨 ruff format check..."
+docker compose exec -T server ruff format --check app/
+
+echo "🔎 mypy..."
+docker compose exec -T server mypy app/
+
+echo "✅ All checks passed."
