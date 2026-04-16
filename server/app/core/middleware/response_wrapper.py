@@ -1,10 +1,12 @@
 import json
-from starlette.middleware.base import BaseHTTPMiddleware
+
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
 
+
 class ResponseWrapperMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         response = await call_next(request)
 
         # skip 204 (pas de body) et les non-JSON
@@ -15,9 +17,9 @@ class ResponseWrapperMiddleware(BaseHTTPMiddleware):
 
         # Sur un framework "classique" type nestjs le streaming de la réponse est caché en général
         # Ici ce n'est pas le cas, il faut donc parcourir le streaming à la main
-        body = b""                          # bytes vide
-        async for chunk in response.body_iterator:  # parcourt chaque morceau
-            body += chunk                   # assemble
+        body = b""  # bytes vide
+        async for chunk in response.body_iterator:  # type: ignore[attr-defined]  # parcourt chaque morceau
+            body += chunk  # assemble
         # maintenant body contient le JSON complet en bytes
 
         wrapped = {
