@@ -5,7 +5,9 @@ from app.module.user.domain.ports.user_write_port import UserWritePort
 
 
 class DeleteUserUseCase:
-    def __init__(self, user_read_adapter: UserReadPort, user_write_adapter: UserWritePort):
+    def __init__(
+        self, user_read_adapter: UserReadPort, user_write_adapter: UserWritePort
+    ):
         self.user_read_adapter = user_read_adapter
         self.user_write_adapter = user_write_adapter
 

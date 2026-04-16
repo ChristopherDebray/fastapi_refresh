@@ -5,7 +5,9 @@ from app.db.database import get_db
 from app.module.auth.application.use_cases.login_use_case import LoginUseCase
 from app.module.auth.application.use_cases.logout_use_case import LogoutUseCase
 from app.module.auth.domain.ports.auth_read_port import AuthReadPort
-from app.module.auth.infrastructure.repositories.auth_sql_alchemy_repository import AuthSqlAlchemyRepository
+from app.module.auth.infrastructure.repositories.auth_sql_alchemy_repository import (
+    AuthSqlAlchemyRepository,
+)
 
 
 def get_auth_read_repository(db: Session = Depends(get_db)) -> AuthReadPort:

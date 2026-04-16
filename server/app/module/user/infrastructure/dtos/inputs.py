@@ -7,6 +7,7 @@ class UserCreateDto(BaseModel):
     last_name: str = Field(min_length=1, max_length=55)
     password: str = Field(min_length=6, max_length=55)
 
+
 class UserUpdateDto(BaseModel):
     id: int | None = None
     email: EmailStr | None = None

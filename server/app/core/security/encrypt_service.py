@@ -1,5 +1,6 @@
 import bcrypt
 
+
 class EncryptService:
     @staticmethod
     def hash(text_to_hash: str) -> str:

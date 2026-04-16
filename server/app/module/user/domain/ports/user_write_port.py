@@ -1,7 +1,8 @@
 from typing import Protocol
-from app.module.user.domain.user import User
+
 from app.module.user.infrastructure.dtos.inputs import UserCreateDto, UserUpdateDto
 from app.module.user.infrastructure.dtos.outputs import UserResponseDto
+
 
 class UserWritePort(Protocol):
     def save(self, user: UserCreateDto) -> UserResponseDto: ...

@@ -2,14 +2,19 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.config import settings
 from app.core.exceptions.unique_constraint_exceptions import UniqueConstraintException
 from app.core.middleware.auth_middleware import AuthMiddleware
-from app.core.middleware.exception_handler import generic_exception_handler, http_exception_handler, conflict_exception_handler, validation_exception_handler
+from app.core.middleware.exception_handler import (
+    conflict_exception_handler,
+    generic_exception_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
 from app.core.middleware.response_wrapper import ResponseWrapperMiddleware
-from app.routes._system import router as system_router
 from app.module.auth.presentation.routes import router as auth_router
 from app.module.user.presentation.routes import router as user_router
-from app.core.config import settings
+from app.routes._system import router as system_router
 
 app = FastAPI(
     title="Fastapi refresh",
@@ -27,19 +32,21 @@ app.add_middleware(
 
 app.add_middleware(ResponseWrapperMiddleware)
 app.add_middleware(AuthMiddleware)
-app.add_exception_handler(RequestValidationError, validation_exception_handler)
-app.add_exception_handler(UniqueConstraintException, conflict_exception_handler)
-app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore[arg-type]
+app.add_exception_handler(UniqueConstraintException, conflict_exception_handler)  # type: ignore[arg-type]
+app.add_exception_handler(HTTPException, http_exception_handler)  # type: ignore[arg-type]
 app.add_exception_handler(Exception, generic_exception_handler)
 
 app.include_router(system_router)
 app.include_router(auth_router)
 app.include_router(user_router)
 
+
 @app.get("/")
-def read_root():
+def read_root() -> dict[str, str]:
     return {"Hello": "World"}
 
+
 @app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
+def read_item(item_id: int, q: str | None = None) -> dict[str, int | str | None]:
     return {"item_id": item_id, "q": q}

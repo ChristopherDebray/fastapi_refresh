@@ -1,7 +1,9 @@
-from dotenv import load_dotenv
 import os
 
+from dotenv import load_dotenv
+
 load_dotenv()
+
 
 class Settings:
     POSTGRES_USER = os.getenv("POSTGRES_USER")
@@ -9,9 +11,12 @@ class Settings:
     POSTGRES_DB = os.getenv("POSTGRES_DB")
     POSTGRES_HOST = os.getenv("POSTGRES_HOST")
     POSTGRES_PORT = os.getenv("POSTGRES_PORT")
-    
+
     ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS")
+
     def allowed_origins_list(self) -> list[str]:
+        if not self.ALLOWED_ORIGINS:
+            return []
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
 
     ENVIRONMENT = os.getenv("ENVIRONMENT", "development")

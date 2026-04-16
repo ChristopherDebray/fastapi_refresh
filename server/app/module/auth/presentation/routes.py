@@ -5,7 +5,10 @@ from app.core.routing import PublicAPIRoute
 from app.module.auth.application.use_cases.login_use_case import LoginUseCase
 from app.module.auth.application.use_cases.logout_use_case import LogoutUseCase
 from app.module.auth.infrastructure.dtos.inputs import LoginDto
-from app.module.auth.presentation.dependancies import get_login_use_case, get_logout_use_case
+from app.module.auth.presentation.dependancies import (
+    get_login_use_case,
+    get_logout_use_case,
+)
 from app.module.user.infrastructure.dtos.outputs import UserResponseDto
 
 COOKIE_NAME = "access_token"
