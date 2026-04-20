@@ -1,0 +1,23 @@
+meta {
+  name: Refresh token
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{BASE_URL}}/api/auth/refresh_token
+  body: none
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "superadmin@example.com",
+    "password": "test1234"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
