@@ -18,3 +18,4 @@ class AuthUserWithPasswordDto(BaseModel):
 class AuthLoginResponseDto(BaseModel):
     user: UserResponseDto
     access_token: str
+    refresh_token: str

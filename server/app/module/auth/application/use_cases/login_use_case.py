@@ -3,14 +3,16 @@ from fastapi import HTTPException, status
 from app.core.security.encrypt_service import EncryptService
 from app.core.security.jwt_service import JwtService
 from app.module.auth.domain.ports.auth_read_port import AuthReadPort
+from app.module.auth.domain.ports.auth_write_port import AuthWritePort
 from app.module.auth.infrastructure.dtos.inputs import LoginDto
 from app.module.auth.infrastructure.dtos.outputs import AuthLoginResponseDto
 from app.module.user.infrastructure.dtos.outputs import UserResponseDto
 
 
 class LoginUseCase:
-    def __init__(self, auth_read_repo: AuthReadPort) -> None:
+    def __init__(self, auth_read_repo: AuthReadPort, auth_write_repo: AuthWritePort) -> None:
         self.auth_read_repo = auth_read_repo
+        self.auth_write_repo = auth_write_repo
 
     def execute(self, dto: LoginDto) -> AuthLoginResponseDto:
         user = self.auth_read_repo.find_by_email(dto.email)
@@ -19,7 +21,11 @@ class LoginUseCase:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials",
             )
-        token = JwtService.create_access_token(user.id, user.email, user.role)
+        access_token = JwtService.create_access_token(user.id, user.email, user.role)
+        refresh_token = JwtService.create_refresh_token(user.id, user.email, user.role)
+
+        self.auth_write_repo.save_refresh_token(user.id, refresh_token)
+
         return AuthLoginResponseDto(
             user=UserResponseDto(
                 id=user.id,
@@ -28,5 +34,6 @@ class LoginUseCase:
                 last_name=user.last_name,
                 role=user.role,
             ),
-            access_token=token,
+            access_token=access_token,
+            refresh_token=refresh_token,
         )

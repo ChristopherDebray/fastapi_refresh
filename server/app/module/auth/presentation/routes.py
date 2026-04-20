@@ -11,7 +11,8 @@ from app.module.auth.presentation.dependancies import (
 )
 from app.module.user.infrastructure.dtos.outputs import UserResponseDto
 
-COOKIE_NAME = "access_token"
+ACCESS_TOKEN_COOKIE = "access_token"
+REFRESH_TOKEN_COOKIE = "refresh_token"
 IS_PRODUCTION = settings.ENVIRONMENT == "production"
 
 router = APIRouter(prefix="/api/auth", tags=["auth"], route_class=PublicAPIRoute)
@@ -25,13 +26,22 @@ def login(
 ) -> UserResponseDto:
     result = use_case.execute(payload)
     response.set_cookie(
-        key=COOKIE_NAME,
+        key=ACCESS_TOKEN_COOKIE,
         value=result.access_token,
         httponly=True,
         secure=IS_PRODUCTION,
         samesite="strict" if IS_PRODUCTION else "lax",
         max_age=settings.JWT_EXPIRE_MINUTES * 60,
     )
+    response.set_cookie(
+        key=REFRESH_TOKEN_COOKIE,
+        value=result.refresh_token,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="strict" if IS_PRODUCTION else "lax",
+        max_age=settings.JWT_EXPIRE_MINUTES * 60,
+    )
+
     return result.user
 
 
@@ -41,4 +51,5 @@ def logout(
     use_case: LogoutUseCase = Depends(get_logout_use_case),
 ) -> None:
     use_case.execute()
-    response.delete_cookie(key=COOKIE_NAME)
+    response.delete_cookie(key=ACCESS_TOKEN_COOKIE)
+    response.delete_cookie(key=REFRESH_TOKEN_COOKIE)

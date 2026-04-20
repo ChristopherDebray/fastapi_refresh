@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.module.auth.domain.ports.auth_read_port import AuthReadPort
@@ -6,7 +6,7 @@ from app.module.auth.infrastructure.dtos.outputs import AuthUserWithPasswordDto
 from app.module.user.infrastructure.persistence.user_model import UserModel
 
 
-class AuthSqlAlchemyRepository(AuthReadPort):
+class AuthReadSqlAlchemyRepository(AuthReadPort):
     def __init__(self, db: Session) -> None:
         self.db = db
 
