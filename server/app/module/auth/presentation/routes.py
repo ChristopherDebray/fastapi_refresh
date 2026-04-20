@@ -1,23 +1,33 @@
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 
 from app.core.config import settings
 from app.core.routing import PublicAPIRoute
+from app.core.security.auth_dependencies import get_current_user
+from app.core.security.token_payload import TokenPayloadDto
 from app.module.auth.application.use_cases.login_use_case import LoginUseCase
 from app.module.auth.application.use_cases.logout_use_case import LogoutUseCase
+from app.module.auth.application.use_cases.refresh_token_use_case import (
+    RefreshTokenUseCase,
+)
 from app.module.auth.infrastructure.dtos.inputs import LoginDto
 from app.module.auth.presentation.dependancies import (
     get_login_use_case,
     get_logout_use_case,
+    get_refresh_token_use_case,
 )
 from app.module.user.infrastructure.dtos.outputs import UserResponseDto
 
-COOKIE_NAME = "access_token"
+ACCESS_TOKEN_COOKIE = "access_token"
+REFRESH_TOKEN_COOKIE = "refresh_token"
 IS_PRODUCTION = settings.ENVIRONMENT == "production"
 
-router = APIRouter(prefix="/api/auth", tags=["auth"], route_class=PublicAPIRoute)
+router = APIRouter(prefix="/api/auth", tags=["auth"])
+public_router = APIRouter(prefix="/api/auth", tags=["auth"], route_class=PublicAPIRoute)
 
 
-@router.post("/login", response_model=UserResponseDto, status_code=status.HTTP_200_OK)
+@public_router.post(
+    "/login", response_model=UserResponseDto, status_code=status.HTTP_200_OK
+)
 def login(
     payload: LoginDto,
     response: Response,
@@ -25,20 +35,89 @@ def login(
 ) -> UserResponseDto:
     result = use_case.execute(payload)
     response.set_cookie(
-        key=COOKIE_NAME,
+        key=ACCESS_TOKEN_COOKIE,
         value=result.access_token,
         httponly=True,
         secure=IS_PRODUCTION,
         samesite="strict" if IS_PRODUCTION else "lax",
         max_age=settings.JWT_EXPIRE_MINUTES * 60,
     )
+    response.set_cookie(
+        key=REFRESH_TOKEN_COOKIE,
+        value=result.refresh_token,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="strict" if IS_PRODUCTION else "lax",
+        max_age=settings.JWT_REFRESH_EXPIRE_DAYS * 24 * 60 * 60,  # days → seconds
+    )
+
     return result.user
 
 
 @router.delete("/logout", status_code=status.HTTP_204_NO_CONTENT)
 def logout(
     response: Response,
+    current_user: TokenPayloadDto = Depends(get_current_user),
     use_case: LogoutUseCase = Depends(get_logout_use_case),
 ) -> None:
-    use_case.execute()
-    response.delete_cookie(key=COOKIE_NAME)
+    use_case.execute(current_user)
+    response.delete_cookie(key=ACCESS_TOKEN_COOKIE)
+    response.delete_cookie(key=REFRESH_TOKEN_COOKIE)
+
+
+@router.get(
+    "/me",
+    response_model=UserResponseDto,
+    status_code=status.HTTP_200_OK,
+)
+def me(
+    current_user: TokenPayloadDto = Depends(get_current_user),
+) -> UserResponseDto:
+    """Retourne les infos de l'utilisateur connecté depuis le token"""
+    return UserResponseDto(
+        id=current_user.id,
+        email=current_user.email,
+        first_name=current_user.first_name,
+        last_name=current_user.last_name,
+        role=current_user.role,
+    )
+
+
+@router.get(
+    "/refresh_token",
+    response_model=UserResponseDto,
+    status_code=status.HTTP_200_OK,
+)
+def refresh_token(
+    request: Request,
+    response: Response,
+    use_case: RefreshTokenUseCase = Depends(get_refresh_token_use_case),
+) -> UserResponseDto:
+    refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE)
+
+    if not refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing refresh token"
+        )
+
+    result = use_case.execute(refresh_token)
+
+    response.set_cookie(
+        key=ACCESS_TOKEN_COOKIE,
+        value=result.access_token,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="strict" if IS_PRODUCTION else "lax",
+        max_age=settings.JWT_EXPIRE_MINUTES * 60,
+    )
+
+    response.set_cookie(
+        key=REFRESH_TOKEN_COOKIE,
+        value=result.refresh_token,
+        httponly=True,
+        secure=IS_PRODUCTION,
+        samesite="strict" if IS_PRODUCTION else "lax",
+        max_age=settings.JWT_REFRESH_EXPIRE_DAYS * 24 * 60 * 60,  # days → seconds
+    )
+
+    return result.user

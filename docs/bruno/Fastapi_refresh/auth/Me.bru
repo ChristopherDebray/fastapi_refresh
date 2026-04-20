@@ -1,0 +1,23 @@
+meta {
+  name: Me
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{BASE_URL}}/api/auth/me
+  body: none
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "superadmin@example.com",
+    "password": "test1234"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

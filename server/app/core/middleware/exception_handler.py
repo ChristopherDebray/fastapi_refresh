@@ -33,7 +33,9 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
     )
 
 
-async def conflict_exception_handler(request: Request, exc: UniqueConstraintException) -> JSONResponse:
+async def conflict_exception_handler(
+    request: Request, exc: UniqueConstraintException
+) -> JSONResponse:
     return JSONResponse(
         status_code=status.HTTP_409_CONFLICT,
         content={
@@ -44,7 +46,9 @@ async def conflict_exception_handler(request: Request, exc: UniqueConstraintExce
     )
 
 
-async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
     errors = [
         f"{' -> '.join(str(loc) for loc in err['loc'] if loc != 'body')}: {err['msg']}"
         for err in exc.errors()

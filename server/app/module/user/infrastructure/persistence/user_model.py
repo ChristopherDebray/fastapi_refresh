@@ -13,6 +13,7 @@ class UserModel(Base):
     first_name: Mapped[str] = mapped_column(String(55))
     last_name: Mapped[str] = mapped_column(String(55))
     password: Mapped[str] = mapped_column(String(255))
+    refresh_token: Mapped[str | None] = mapped_column(String(255))
     # `server_default` is used to have the default value inside the database / migration,
     # `default` is only for the sql alchemy object creation
     role: Mapped[UserRole] = mapped_column(

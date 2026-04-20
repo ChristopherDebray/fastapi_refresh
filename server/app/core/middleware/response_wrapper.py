@@ -6,7 +6,9 @@ from starlette.responses import Response
 
 
 class ResponseWrapperMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         response = await call_next(request)
 
         # skip 204 (pas de body) et les non-JSON

@@ -1,4 +1,4 @@
-"""add password and role status enum for user
+"""add password, refresh_token and role status enum for user
 
 Revision ID: 484109d94a21
 Revises: 21cb893ff1cd
@@ -31,6 +31,7 @@ def upgrade() -> None:
     op.add_column('fpi_users', sa.Column('password', sa.String(length=255), nullable=False))
     op.add_column('fpi_users', sa.Column('role', sa.Enum('SUPERADMIN', 'ADMIN', 'SUPERVISOR', 'DRIVER', 'OPERATOR', name='userrole'), server_default='OPERATOR', nullable=False))
     op.add_column('fpi_users', sa.Column('status', sa.Enum('ACTIVE', 'INACTIVE', name='userstatus'), server_default='ACTIVE', nullable=False))
+    op.add_column('fpi_users', sa.Column('refresh_token', sa.String(length=255), nullable=True))
     # ### end Alembic commands ###
 
 
@@ -43,4 +44,5 @@ def downgrade() -> None:
 
     sa.Enum(name='userrole').drop(op.get_bind(), checkfirst=True)
     sa.Enum(name='userstatus').drop(op.get_bind(), checkfirst=True)
+    op.drop_column('fpi_users', 'refresh_token')
     # ### end Alembic commands ###

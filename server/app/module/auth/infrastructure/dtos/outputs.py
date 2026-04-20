@@ -12,9 +12,11 @@ class AuthUserWithPasswordDto(BaseModel):
     first_name: str
     last_name: str
     password: str
+    refresh_token: str | None
     role: UserRole
 
 
-class AuthLoginResponseDto(BaseModel):
+class AuthResponseDto(BaseModel):
     user: UserResponseDto
     access_token: str
+    refresh_token: str

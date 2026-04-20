@@ -12,6 +12,7 @@ from app.core.middleware.exception_handler import (
     validation_exception_handler,
 )
 from app.core.middleware.response_wrapper import ResponseWrapperMiddleware
+from app.module.auth.presentation.routes import public_router as auth_public_router
 from app.module.auth.presentation.routes import router as auth_router
 from app.module.user.presentation.routes import router as user_router
 from app.routes._system import router as system_router
@@ -38,6 +39,7 @@ app.add_exception_handler(HTTPException, http_exception_handler)  # type: ignore
 app.add_exception_handler(Exception, generic_exception_handler)
 
 app.include_router(system_router)
+app.include_router(auth_public_router)
 app.include_router(auth_router)
 app.include_router(user_router)
 
