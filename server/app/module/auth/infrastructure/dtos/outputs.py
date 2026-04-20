@@ -12,6 +12,7 @@ class AuthUserWithPasswordDto(BaseModel):
     first_name: str
     last_name: str
     password: str
+    refresh_token: str | None
     role: UserRole
 
 

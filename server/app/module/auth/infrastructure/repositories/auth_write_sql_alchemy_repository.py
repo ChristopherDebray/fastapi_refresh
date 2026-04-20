@@ -9,7 +9,7 @@ class AuthWriteSqlAlchemyRepository(AuthWritePort):
     def __init__(self, db: Session) -> None:
         self.db = db
 
-    def save_refresh_token(self, user_id: int, refresh_token: str) -> None:
+    def save_refresh_token(self, user_id: int, refresh_token: str | None) -> None:
         self.db.execute(
             update(UserModel)
             .where(UserModel.id == user_id)

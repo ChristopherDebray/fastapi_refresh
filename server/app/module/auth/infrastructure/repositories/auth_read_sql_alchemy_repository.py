@@ -22,5 +22,22 @@ class AuthReadSqlAlchemyRepository(AuthReadPort):
             first_name=model.first_name,
             last_name=model.last_name,
             password=model.password,
+            refresh_token=model.refresh_token,
+            role=model.role,
+        )
+
+    def find_by_id(self, id: int) -> AuthUserWithPasswordDto | None:
+        model = self.db.execute(
+            select(UserModel).where(UserModel.id == id)
+        ).scalar_one_or_none()
+        if model is None:
+            return None
+        return AuthUserWithPasswordDto(
+            id=model.id,
+            email=model.email,
+            first_name=model.first_name,
+            last_name=model.last_name,
+            password=model.password,
+            refresh_token=model.refresh_token,
             role=model.role,
         )
