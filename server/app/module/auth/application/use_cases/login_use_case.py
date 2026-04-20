@@ -11,7 +11,9 @@ from app.module.user.infrastructure.dtos.outputs import UserResponseDto
 
 
 class LoginUseCase:
-    def __init__(self, auth_read_repo: AuthReadPort, auth_write_repo: AuthWritePort) -> None:
+    def __init__(
+        self, auth_read_repo: AuthReadPort, auth_write_repo: AuthWritePort
+    ) -> None:
         self.auth_read_repo = auth_read_repo
         self.auth_write_repo = auth_write_repo
 
@@ -31,7 +33,7 @@ class LoginUseCase:
             role=user.role,
         )
         access_token = JwtService.create_access_token(token_dto)
-        
+
         refresh_token_dto = CreateRefreshTokenDto(
             user_id=user.id,
             email=user.email,

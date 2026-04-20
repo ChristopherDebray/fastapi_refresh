@@ -12,7 +12,9 @@ COOKIE_NAME = "access_token"
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         if self._is_public_route(request):
             return await call_next(request)
 

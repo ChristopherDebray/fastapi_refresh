@@ -3,7 +3,12 @@ from datetime import UTC, datetime, timedelta
 from jose import jwt
 
 from app.core.config import settings
-from app.core.security.token_payload import CreateAccessTokenDto, CreateRefreshTokenDto, RefreshTokenPayloadDto, TokenPayloadDto
+from app.core.security.token_payload import (
+    CreateAccessTokenDto,
+    CreateRefreshTokenDto,
+    RefreshTokenPayloadDto,
+    TokenPayloadDto,
+)
 
 
 class JwtService:

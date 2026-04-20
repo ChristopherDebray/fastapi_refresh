@@ -10,9 +10,11 @@ class CreateAccessTokenDto(BaseModel):
     last_name: str
     role: UserRole
 
+
 class CreateRefreshTokenDto(BaseModel):
     user_id: int
     email: str
+
 
 class TokenPayloadDto(BaseModel):
     id: int
@@ -21,6 +23,7 @@ class TokenPayloadDto(BaseModel):
     first_name: str
     last_name: str
     role: UserRole
+
 
 class RefreshTokenPayloadDto(BaseModel):
     user_id: int

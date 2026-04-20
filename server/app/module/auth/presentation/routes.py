@@ -2,7 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 
 from app.core.config import settings
 from app.core.routing import PublicAPIRoute
+from app.core.security.auth_dependencies import get_current_user
+from app.core.security.token_payload import TokenPayloadDto
 from app.module.auth.application.use_cases.login_use_case import LoginUseCase
+from app.module.auth.application.use_cases.logout_use_case import LogoutUseCase
+from app.module.auth.application.use_cases.refresh_token_use_case import (
+    RefreshTokenUseCase,
+)
 from app.module.auth.infrastructure.dtos.inputs import LoginDto
 from app.module.auth.presentation.dependancies import (
     get_login_use_case,
@@ -10,10 +16,6 @@ from app.module.auth.presentation.dependancies import (
     get_refresh_token_use_case,
 )
 from app.module.user.infrastructure.dtos.outputs import UserResponseDto
-from app.module.auth.application.use_cases.refresh_token_use_case import RefreshTokenUseCase
-from app.core.security.auth_dependencies import get_current_user
-from app.core.security.token_payload import TokenPayloadDto
-from app.module.auth.application.use_cases.logout_use_case import LogoutUseCase
 
 ACCESS_TOKEN_COOKIE = "access_token"
 REFRESH_TOKEN_COOKIE = "refresh_token"
@@ -22,7 +24,10 @@ IS_PRODUCTION = settings.ENVIRONMENT == "production"
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 public_router = APIRouter(prefix="/api/auth", tags=["auth"], route_class=PublicAPIRoute)
 
-@public_router.post("/login", response_model=UserResponseDto, status_code=status.HTTP_200_OK)
+
+@public_router.post(
+    "/login", response_model=UserResponseDto, status_code=status.HTTP_200_OK
+)
 def login(
     payload: LoginDto,
     response: Response,
@@ -59,6 +64,7 @@ def logout(
     response.delete_cookie(key=ACCESS_TOKEN_COOKIE)
     response.delete_cookie(key=REFRESH_TOKEN_COOKIE)
 
+
 @router.get(
     "/me",
     response_model=UserResponseDto,
@@ -73,8 +79,9 @@ def me(
         email=current_user.email,
         first_name=current_user.first_name,
         last_name=current_user.last_name,
-        role=current_user.role
+        role=current_user.role,
     )
+
 
 @router.get(
     "/refresh_token",
@@ -90,8 +97,7 @@ def refresh_token(
 
     if not refresh_token:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing refresh token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing refresh token"
         )
 
     result = use_case.execute(refresh_token)
@@ -104,7 +110,7 @@ def refresh_token(
         samesite="strict" if IS_PRODUCTION else "lax",
         max_age=settings.JWT_EXPIRE_MINUTES * 60,
     )
-    
+
     response.set_cookie(
         key=REFRESH_TOKEN_COOKIE,
         value=result.refresh_token,
@@ -113,5 +119,5 @@ def refresh_token(
         samesite="strict" if IS_PRODUCTION else "lax",
         max_age=settings.JWT_REFRESH_EXPIRE_DAYS * 24 * 60 * 60,  # days → seconds
     )
-    
+
     return result.user
