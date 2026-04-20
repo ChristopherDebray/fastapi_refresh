@@ -15,7 +15,7 @@ class AuthUserWithPasswordDto(BaseModel):
     role: UserRole
 
 
-class AuthLoginResponseDto(BaseModel):
+class AuthResponseDto(BaseModel):
     user: UserResponseDto
     access_token: str
     refresh_token: str

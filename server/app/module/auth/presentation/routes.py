@@ -10,6 +10,8 @@ from app.module.auth.presentation.dependancies import (
     get_logout_use_case,
 )
 from app.module.user.infrastructure.dtos.outputs import UserResponseDto
+from server.app.core.security.auth_dependencies import get_current_user
+from server.app.core.security.token_payload import TokenPayloadDto
 
 ACCESS_TOKEN_COOKIE = "access_token"
 REFRESH_TOKEN_COOKIE = "refresh_token"
@@ -39,6 +41,7 @@ def login(
         httponly=True,
         secure=IS_PRODUCTION,
         samesite="strict" if IS_PRODUCTION else "lax",
+        # Ici mettre 1 semaine
         max_age=settings.JWT_EXPIRE_MINUTES * 60,
     )
 
@@ -53,3 +56,20 @@ def logout(
     use_case.execute()
     response.delete_cookie(key=ACCESS_TOKEN_COOKIE)
     response.delete_cookie(key=REFRESH_TOKEN_COOKIE)
+
+@router.get(
+    "/me",
+    response_model=UserResponseDto,
+    status_code=status.HTTP_200_OK,
+)
+def me(
+    current_user: TokenPayloadDto = Depends(get_current_user),
+) -> UserResponseDto:
+    """Retourne les infos de l'utilisateur connecté depuis le token"""
+    return UserResponseDto(
+        id=current_user.id,
+        email=current_user.email,
+        first_name=current_user.first_name,
+        last_name=current_user.last_name,
+        role=current_user.role
+    )
