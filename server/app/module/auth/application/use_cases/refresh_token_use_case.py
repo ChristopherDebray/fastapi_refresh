@@ -26,7 +26,6 @@ class RefreshTokenUseCase:
             AuthResponseDto with user, access_token, and new refresh_token
         """
 
-        print(f"${refresh_token}")
         try:
             payload = JwtService.decode_refresh_token(refresh_token)
         except Exception as err:

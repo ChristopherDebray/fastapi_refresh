@@ -9,7 +9,8 @@ from app.module.auth.application.use_cases.logout_use_case import LogoutUseCase
 from app.module.auth.application.use_cases.refresh_token_use_case import (
     RefreshTokenUseCase,
 )
-from app.module.auth.infrastructure.dtos.inputs import LoginDto
+from app.module.auth.infrastructure.dtos.inputs import LoginDto, RefreshTokenDto
+from app.module.auth.infrastructure.dtos.outputs import AuthResponseDto
 from app.module.auth.presentation.dependancies import (
     get_login_use_case,
     get_logout_use_case,
@@ -26,13 +27,13 @@ public_router = APIRouter(prefix="/api/auth", tags=["auth"], route_class=PublicA
 
 
 @public_router.post(
-    "/login", response_model=UserResponseDto, status_code=status.HTTP_200_OK
+    "/login", response_model=AuthResponseDto, status_code=status.HTTP_200_OK
 )
 def login(
     payload: LoginDto,
     response: Response,
     use_case: LoginUseCase = Depends(get_login_use_case),
-) -> UserResponseDto:
+) -> AuthResponseDto:
     result = use_case.execute(payload)
     response.set_cookie(
         key=ACCESS_TOKEN_COOKIE,
@@ -51,7 +52,7 @@ def login(
         max_age=settings.JWT_REFRESH_EXPIRE_DAYS * 24 * 60 * 60,  # days → seconds
     )
 
-    return result.user
+    return result
 
 
 @router.delete("/logout", status_code=status.HTTP_204_NO_CONTENT)
@@ -83,17 +84,30 @@ def me(
     )
 
 
-@router.get(
-    "/refresh_token",
-    response_model=UserResponseDto,
+@public_router.post(
+    "/refresh",
+    response_model=AuthResponseDto,
     status_code=status.HTTP_200_OK,
 )
 def refresh_token(
     request: Request,
     response: Response,
+    payload: RefreshTokenDto | None = None,
     use_case: RefreshTokenUseCase = Depends(get_refresh_token_use_case),
-) -> UserResponseDto:
-    refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE)
+) -> AuthResponseDto:
+    """
+    Refresh access token.
+    Accepts refresh_token via:
+    - Body: { "refresh_token": "..." } (priority)
+    - Cookie: refresh_token (fallback for SPA)
+    """
+
+    # 1. Body priority
+    refresh_token = payload.refresh_token if payload else None
+
+    # 2. Fallback to cookie
+    if not refresh_token:
+        refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE)
 
     if not refresh_token:
         raise HTTPException(
@@ -102,6 +116,7 @@ def refresh_token(
 
     result = use_case.execute(refresh_token)
 
+    # Update cookies (for SPA clients)
     response.set_cookie(
         key=ACCESS_TOKEN_COOKIE,
         value=result.access_token,
@@ -117,7 +132,7 @@ def refresh_token(
         httponly=True,
         secure=IS_PRODUCTION,
         samesite="strict" if IS_PRODUCTION else "lax",
-        max_age=settings.JWT_REFRESH_EXPIRE_DAYS * 24 * 60 * 60,  # days → seconds
+        max_age=settings.JWT_REFRESH_EXPIRE_DAYS * 24 * 60 * 60,
     )
 
-    return result.user
+    return result

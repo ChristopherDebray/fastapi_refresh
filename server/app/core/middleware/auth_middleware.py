@@ -18,7 +18,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if self._is_public_route(request):
             return await call_next(request)
 
-        token = request.cookies.get(COOKIE_NAME)
+        token = self._get_auth_token(request)
         if not token:
             return self._unauthorized(
                 request, "You must be logged in to use this route"
@@ -51,3 +51,19 @@ class AuthMiddleware(BaseHTTPMiddleware):
             status_code=401,
             media_type="application/json",
         )
+
+    def _get_auth_token(self, request: Request) -> str | None:
+        # Get token from cookie
+        cookie_token = request.cookies.get(COOKIE_NAME)
+        if cookie_token:
+            return cookie_token
+
+        # Get token from header Authorization
+        auth_header = request.headers.get("Authorization")
+        if auth_header:
+            parts = auth_header.split()  # Split "Bearer token"
+
+            if len(parts) == 2 and parts[0].lower() == "bearer":
+                return parts[1]  # returns only the token
+
+        return None
